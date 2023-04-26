@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "config.hpp"
+#include "instance.hpp"
 
 const static struct option long_opts[] = {
     {"config", required_argument, NULL, 'c'},
@@ -36,12 +37,7 @@ int main(int argc, char *argv[]) {
     }
     Config c = Config(std::move(in_cfg));
 
-    std::cout << c.nGenerations << std::endl;
-    std::cout << c.population.size << std::endl;
-    std::cout << c.tournament.percentWinners << std::endl;
-    std::cout << c.mixing.precise << std::endl;
-    std::cout << c.mixing.cutRange << std::endl;
-    std::cout << c.mutation.chance << std::endl;
-    std::cout << c.mutation.nShuffles << std::endl;
+    Instance i = Instance(std::move(in_inst), 10, 5);
+
     return 0;
 }
