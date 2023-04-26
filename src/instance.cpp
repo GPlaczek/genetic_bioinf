@@ -18,23 +18,26 @@ int compareDist(std::string &first, std::string &second) {
 
 Instance::Instance(
     std::unique_ptr<std::istream> stream,
-    int popSize,
+    int nWords,
     int targetLen
 ) {
-    this -> popSize = popSize;
+    this -> nWords = nWords;
     this -> targetLen = targetLen;
 
     this -> matrix = std::vector<std::vector<int>>(
-        popSize,
-        std::vector<int>(popSize));
-    this -> words = std::vector<std::string>(popSize);
+        nWords,
+        std::vector<int>(nWords));
+    this -> words = std::vector<std::string>(nWords);
 
-    for (int i = 0; i < popSize; i++) {
+    for (int i = 0; i < nWords; i++) {
         *stream >> this->words[i];
     }
 
-    for (size_t i = 0; i < popSize; i++) {
-        for (size_t j = 0; j < popSize; j++)
+    for (size_t i = 0; i < nWords; i++) {
+        for (size_t j = 0; j < nWords; j++)
             this->matrix[i][j] = compareDist(this->words[i], this->words[j]);
     }
 }
+
+int Instance::getNWords() { return this -> nWords; }
+int Instance::getTargetLen() { return this -> targetLen; }

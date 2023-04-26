@@ -5,10 +5,12 @@
 #include <memory>
 
 class Instance {
-    int popSize;
+    int nWords;
     int targetLen;
     std::vector<std::vector<int>> matrix;
     std::vector<std::string> words;
 public:
-    Instance(std::unique_ptr<std::istream> stream, int popSize, int targetLen);
+    int getNWords();
+    int getTargetLen();
+    Instance(std::unique_ptr<std::istream> stream, int nWords, int targetLen);
 };
