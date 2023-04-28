@@ -7,6 +7,7 @@
 #include <random>
 
 #include "config.hpp"
+#include "shuffle.hpp"
 #include "instance.hpp"
 
 const static struct option long_opts[] = {
@@ -18,20 +19,35 @@ void genetic(
     Config &config,
     Instance &instance
 ) {
+    int nWinners = (int)(config.tournament.percentWinners * config.population.size);
     std::default_random_engine rng{};
-    std::vector<std::vector<int>> population(
+
+    std::vector<Shuffle> population(
         config.population.size,
-        std::vector<int>(instance.getNWords()));
+        Shuffle(instance.getNWords()));
+
+    std::vector<Shuffle> work(
+        config.population.size,
+        Shuffle(instance.getNWords()));
 
     // Generate initial population
     for (
-        std::vector<std::vector<int>>::iterator it = population.begin();
+        std::vector<Shuffle>::iterator it = population.begin();
         it < population.end();
         it++
     ) {
-        std::iota(it->begin(), it->end(), 0);
-        std::shuffle(it->begin(), it->end(), rng);
+        std::iota(it->indices.begin(), it->indices.end(), 0);
+        std::shuffle(it->indices.begin(), it->indices.end(), rng);
     }
+
+    // Evaluate the population
+    for (Shuffle &s : population)
+        instance.evaluate(s);
+
+    // Pick strongest elements
+    // all the strongest elements are contained between itStrongest and population.end() iterators
+    auto itStrongest = population.end() - nWinners;
+    std::partial_sort(population.begin(), itStrongest, population.end());
 }
 
 int main(int argc, char *argv[]) {

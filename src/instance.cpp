@@ -39,5 +39,16 @@ Instance::Instance(
     }
 }
 
+void Instance::evaluate(Shuffle &s) {
+    // TODO: this is just a dummy initial version
+    int value = 0;
+    int length = this->words[0].length();
+    for (int i = 0; i < s.indices.size() - 1 && length < this->targetLen; i++) {
+        length += this->matrix[s.indices[i]][s.indices[i+1]];
+        value += length - 1; 
+    }
+    s.value = value;
+}
+
 int Instance::getNWords() { return this -> nWords; }
 int Instance::getTargetLen() { return this -> targetLen; }
