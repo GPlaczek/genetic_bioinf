@@ -16,6 +16,8 @@ int compareDist(std::string &first, std::string &second) {
     return first.length();
 }
 
+Instance::Instance() {}
+
 Instance::Instance(
     std::unique_ptr<std::istream> stream,
     int nWords,
@@ -43,11 +45,13 @@ void Instance::evaluate(Shuffle &s) {
     // TODO: this is just a dummy initial version
     int value = 0;
     int length = this->words[0].length();
-    for (int i = 0; i < s.indices.size() - 1 && length < this->targetLen; i++) {
+    int i;
+    for (i = 0; i < s.indices.size() - 1 && length < this->targetLen; i++) {
         length += this->matrix[s.indices[i]][s.indices[i+1]];
         value += length - 1; 
     }
     s.value = value;
+    s.cut = s.indices.begin() + i;
 }
 
 int Instance::getNWords() { return this -> nWords; }

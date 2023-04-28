@@ -4,6 +4,8 @@
 
 #include "config.hpp"
 
+Config::Config() {}
+
 Config::Config(std::unique_ptr<std::istream> source) {
     int nGenerations = DEFAULT_N_GENERATIONS;
     int popSize = DEFAULT_POP_SIZE;

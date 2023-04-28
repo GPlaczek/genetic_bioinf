@@ -4,7 +4,8 @@
 
 Shuffle::Shuffle(int nWords) {
     this->indices = std::vector<int>(nWords);
-    value = -1;
+    this->cut = this->indices.end();
+    this->value = -1;
 }
 
 bool Shuffle::operator< (Shuffle const& other) const {

@@ -15,40 +15,108 @@ const static struct option long_opts[] = {
     {0, 0, 0, 0},
 };
 
-void genetic(
-    Config &config,
-    Instance &instance
-) {
-    int nWinners = (int)(config.tournament.percentWinners * config.population.size);
-    std::default_random_engine rng{};
+class Genetic {
+    Config *config;
+    Instance *instance;
+    int nWinners;
+    std::mt19937 rng;
+public:
+    Genetic(Config &config, Instance &instance) {
+        this->config = &config;
+        this->instance = &instance;
+        this->nWinners = (int)(this->config->tournament.percentWinners * this->config->population.size);
+        std::random_device rd;
+        this->rng = std::mt19937(rd());
+    };
 
-    std::vector<Shuffle> population(
-        config.population.size,
-        Shuffle(instance.getNWords()));
+    void run() {
+        std::vector<Shuffle> population(
+            this->config->population.size,
+            Shuffle(this->instance->getNWords()));
 
-    std::vector<Shuffle> work(
-        config.population.size,
-        Shuffle(instance.getNWords()));
+        std::vector<Shuffle> work(
+            this->config->population.size,
+            Shuffle(this->instance->getNWords()));
 
-    // Generate initial population
-    for (
-        std::vector<Shuffle>::iterator it = population.begin();
-        it < population.end();
-        it++
-    ) {
-        std::iota(it->indices.begin(), it->indices.end(), 0);
-        std::shuffle(it->indices.begin(), it->indices.end(), rng);
+        // Generate initial population
+        for (
+            std::vector<Shuffle>::iterator it = population.begin();
+            it < population.end();
+            it++
+        ) {
+            std::iota(it->indices.begin(), it->indices.end(), 0);
+            std::shuffle(it->indices.begin(), it->indices.end(), rng);
+        }
+
+        // Evaluate the population
+        for (Shuffle &s : population) {
+            this->instance->evaluate(s);
+        }
+
+        // Pick strongest elements
+        // all the strongest elements are contained between itStrongest and population.end() iterators
+        auto itStrongest = population.end() - nWinners;
+        std::partial_sort(population.begin(), itStrongest, population.end());
+
+        // Rebuild the population
+        std::uniform_int_distribution<int> rand(0, nWinners-1);
+        for (auto it = work.begin(); it < work.end(); it+=2) {
+            Shuffle &s1 = *(itStrongest + rand(this->rng));
+            Shuffle &s2 = *(itStrongest + rand(this->rng));
+            combine(s1, s2, *it, *(it+1));
+        }
+        population.swap(work);
     }
 
-    // Evaluate the population
-    for (Shuffle &s : population)
-        instance.evaluate(s);
+    void combine(Shuffle const &in1, Shuffle const &in2, Shuffle &out1, Shuffle &out2) {
+        int len = in1.cut - in1.indices.begin();
+        int cutRange = std::floor(len * this->config->mixing.cutRange);
 
-    // Pick strongest elements
-    // all the strongest elements are contained between itStrongest and population.end() iterators
-    auto itStrongest = population.end() - nWinners;
-    std::partial_sort(population.begin(), itStrongest, population.end());
-}
+        std::uniform_int_distribution<int> rand(len / 2 - cutRange, len / 2 + cutRange);
+        int cutInd = rand(this->rng);
+
+        std::vector<bool> aux1(this->instance->getNWords());
+        std::vector<bool> aux2(this->instance->getNWords());
+
+        for (int i = 0; i < cutInd; i++) {
+            out1.indices[i] = in1.indices[i];
+            aux1[in1.indices[i]] = true;
+        }
+        for (int i = 0; i < len - cutInd; i++) {
+            out2.indices[i] = in1.indices[i];
+            aux2[in1.indices[i]] = true;
+        }
+
+        int ind1 = cutInd;
+        int ind2 = len - cutInd;
+
+        static auto append = [&aux1, &out1, &ind1, &aux2, &out2, &ind2](int i) mutable {
+        };
+
+        // TODO: this is redundant and cringe, refactor
+        for (int i : in2.indices) {
+            if (!aux1[i]) {
+                out1.indices[ind1++] = i;
+                aux1[i] = true;
+            }
+            if (!aux2[i]) {
+                out2.indices[ind2++] = i;
+                aux2[i] = true;
+            }
+        }
+
+        for (auto it = in1.cut; it < in1.indices.end(); it++) {
+            if (!aux1[*it]) {
+                out1.indices[ind1++] = *it;
+                aux1[*it] = true;
+            }
+            if (!aux2[*it]) {
+                out2.indices[ind2++] = *it;
+                aux2[*it] = true;
+            }
+        }
+    }
+};
 
 int main(int argc, char *argv[]) {
     std::unique_ptr<std::istream> in_cfg;
@@ -78,7 +146,8 @@ int main(int argc, char *argv[]) {
 
     Instance i(std::move(in_inst), 10, 5);
 
-    genetic(c, i);
+    Genetic g(c, i);
+    g.run();
 
     return 0;
 }

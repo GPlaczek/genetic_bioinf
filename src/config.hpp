@@ -34,5 +34,6 @@ public:
     Mixing mixing;
     Mutation mutation;
 
+    Config();
     Config(std::unique_ptr<std::istream> source);
 };
