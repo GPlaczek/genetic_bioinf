@@ -20,7 +20,7 @@ Config::Config(std::unique_ptr<std::istream> source) {
         ini.parse(*source);
         inipp::get_value(ini.sections["globals"], "nGenerations", nGenerations);
         inipp::get_value(ini.sections["population"], "size", popSize);
-        inipp::get_value(ini.sections["tournament"], "nWinners", percentWinners);
+        inipp::get_value(ini.sections["tournament"], "percentWinners", percentWinners);
         inipp::get_value(ini.sections["mixing"], "precise", precise);
         inipp::get_value(ini.sections["mixing"], "cutRange", cutRange);
         inipp::get_value(ini.sections["mutation"], "chance", chance);
