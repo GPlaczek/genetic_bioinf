@@ -82,9 +82,10 @@ public:
             out1.indices[i] = in1.indices[i];
             aux1[in1.indices[i]] = true;
         }
+
         for (int i = 0; i < len - cutInd; i++) {
-            out2.indices[i] = in1.indices[i];
-            aux2[in1.indices[i]] = true;
+            out2.indices[i] = in1.indices[i+cutInd];
+            aux2[in1.indices[i+cutInd]] = true;
         }
 
         int ind1 = cutInd;
