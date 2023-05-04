@@ -42,15 +42,21 @@ Instance::Instance(
 }
 
 void Instance::evaluate(Shuffle &s) {
-    // TODO: this is just a dummy initial version
-    int value = 0;
-    int length = this->words[0].length();
+    int nPositive = s.indices.size();
+    int nNegative = 0;
+    int seqLen = this->words[0].length();
+
+    // find a place where expected length is greater or equal to targetLen
     int i;
-    for (i = 0; i < s.indices.size() - 1 && length < this->targetLen; i++) {
-        length += this->matrix[s.indices[i]][s.indices[i+1]];
-        value += length - 1; 
+    for (i = 0; i < s.indices.size() - 1 && seqLen < this->targetLen; i++) {
+        int distance = this->matrix[s.indices[i]][s.indices[i+1]];
+
+        nPositive -= 1;
+        nNegative += distance - 1;
+        seqLen += distance;
     }
-    s.value = value;
+
+    s.value = (seqLen - targetLen) * (seqLen - targetLen) + nPositive;
     s.cut = s.indices.begin() + i;
 }
 
