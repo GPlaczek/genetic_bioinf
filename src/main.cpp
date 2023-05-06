@@ -12,6 +12,7 @@
 
 const static struct option long_opts[] = {
     {"config", required_argument, NULL, 'c'},
+    {"parallel", optional_argument, NULL, 'p'},
     {0, 0, 0, 0},
 };
 
@@ -33,7 +34,7 @@ public:
         this->rng = std::mt19937(rd());
     };
 
-    void run() {
+    void run(bool parallel) {
         std::vector<std::unique_ptr<Shuffle>> population(this->config->population.size);
 
         std::vector<std::unique_ptr<Shuffle>> bestHeap(this->nWinners);
@@ -51,6 +52,7 @@ public:
 
         for (int i = 0; i < this->config->nGenerations; i++) {
             // Evaluate the population
+            #pragma omp parallel for if (parallel)
             for (auto &s : population) {
                 this->instance->evaluate(*s);
             }
@@ -70,6 +72,7 @@ public:
 
             // Rebuild the population
             std::uniform_int_distribution<int> rand(0, nWinners-1);
+            #pragma omp parallel for if (parallel)
             for (auto it = population.begin(); it < population.end(); it+=2) {
                 std::unique_ptr<Shuffle> &s1 = *(bestHeap.begin() + rand(this->rng));
                 std::unique_ptr<Shuffle> &s2 = *(bestHeap.begin() + rand(this->rng));
@@ -129,15 +132,20 @@ public:
 };
 
 int main(int argc, char *argv[]) {
+    bool parallel = false;
+
     std::unique_ptr<std::istream> in_cfg;
     std::unique_ptr<std::istream> in_inst;
 
     int next_option;
     while (optind < argc) {
-        if ((next_option = getopt_long(argc, argv, "c:", long_opts, NULL)) != -1) {
+        if ((next_option = getopt_long(argc, argv, "pc:", long_opts, NULL)) != -1) {
             switch (next_option) {
             case 'c':
                 in_cfg.reset(new std::ifstream(optarg));
+                break;
+            case 'p':
+                parallel = true;
                 break;
             default:
                 return 1;
@@ -157,7 +165,7 @@ int main(int argc, char *argv[]) {
     Instance i(std::move(in_inst), 160, 209);
 
     Genetic g(c, i);
-    g.run();
+    g.run(parallel);
 
     return 0;
 }

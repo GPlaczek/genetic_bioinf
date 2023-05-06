@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.11)
 include(FetchContent)
 
 project(genetic_bioinf)
+
 file(GLOB src ${PROJECT_SOURCE_DIR}/src/*.cpp)
+
 add_executable(app ${src})
 
 FetchContent_Declare(
@@ -13,3 +15,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(inipp)
 target_link_libraries(app PRIVATE inipp::inipp)
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(app PUBLIC OpenMP::OpenMP_CXX)
+endif()
