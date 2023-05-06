@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <random>
 
+#include <omp.h>
+
 #include "config.hpp"
 #include "shuffle.hpp"
 #include "instance.hpp"
@@ -139,14 +141,20 @@ int main(int argc, char *argv[]) {
 
     int next_option;
     while (optind < argc) {
-        if ((next_option = getopt_long(argc, argv, "pc:", long_opts, NULL)) != -1) {
+        if ((next_option = getopt_long(argc, argv, "p:c:", long_opts, NULL)) != -1) {
             switch (next_option) {
             case 'c':
                 in_cfg.reset(new std::ifstream(optarg));
                 break;
-            case 'p':
+            case 'p': {
+                int threads = std::atoi(optarg);
+                if (threads < 1) {
+                    std::cerr << "Invalid number of threads specified" << std::endl;
+                    return 1;
+                }
+                omp_set_num_threads(threads);
                 parallel = true;
-                break;
+                break; }
             default:
                 return 1;
             }
