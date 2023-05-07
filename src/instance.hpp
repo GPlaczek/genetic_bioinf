@@ -17,5 +17,5 @@ public:
     void evaluate(Shuffle &s);
 
     Instance();
-    Instance(std::unique_ptr<std::istream> stream, int nWords, int targetLen);
+    Instance(std::istream &stream, int nWords, int targetLen);
 };

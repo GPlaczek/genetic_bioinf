@@ -35,5 +35,5 @@ public:
     Mutation mutation;
 
     Config();
-    Config(std::unique_ptr<std::istream> source);
+    Config(std::istream &source);
 };

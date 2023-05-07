@@ -19,7 +19,7 @@ int compareDist(std::string &first, std::string &second) {
 Instance::Instance() {}
 
 Instance::Instance(
-    std::unique_ptr<std::istream> stream,
+    std::istream &stream,
     int nWords,
     int targetLen
 ) {
@@ -32,7 +32,7 @@ Instance::Instance(
     this -> words = std::vector<std::string>(nWords);
 
     for (int i = 0; i < nWords; i++) {
-        *stream >> this->words[i];
+        stream >> this->words[i];
     }
 
     for (size_t i = 0; i < nWords; i++) {

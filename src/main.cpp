@@ -23,40 +23,40 @@ bool compare(std::unique_ptr<Shuffle> &s1, std::unique_ptr<Shuffle> &s2) {
 }
 
 class Genetic {
-    Config *config;
-    Instance *instance;
+    Config config;
+    Instance instance;
     int nWinners;
     std::mt19937 rng;
 public:
-    Genetic(Config &config, Instance &instance) {
-        this->config = &config;
-        this->instance = &instance;
-        this->nWinners = (int)(this->config->tournament.percentWinners * this->config->population.size);
+    Genetic(Config config, Instance instance) {
+        this->config = config;
+        this->instance = instance;
+        this->nWinners = (int)(this->config.tournament.percentWinners * this->config.population.size);
         std::random_device rd;
         this->rng = std::mt19937(rd());
     };
 
     void run(bool parallel) {
-        std::vector<std::unique_ptr<Shuffle>> population(this->config->population.size);
+        std::vector<std::unique_ptr<Shuffle>> population(this->config.population.size);
 
         std::vector<std::unique_ptr<Shuffle>> bestHeap(this->nWinners);
 
         // Generate initial population
         for (auto &it : population) {
-            it.reset(new Shuffle(this->instance->getNWords()));
+            it.reset(new Shuffle(this->instance.getNWords()));
             std::iota(it->indices.begin(), it->indices.end(), 0);
             std::shuffle(it->indices.begin(), it->indices.end(), rng);
         }
 
         for (auto &it : bestHeap) {
-            it.reset(new Shuffle(this->instance->getNWords()));
+            it.reset(new Shuffle(this->instance.getNWords()));
         }
 
-        for (int i = 0; i < this->config->nGenerations; i++) {
+        for (int i = 0; i < this->config.nGenerations; i++) {
             // Evaluate the population
             #pragma omp parallel for if (parallel)
             for (auto &s : population) {
-                this->instance->evaluate(*s);
+                this->instance.evaluate(*s);
             }
 
             // Pick strongest elements
@@ -97,13 +97,13 @@ public:
         std::unique_ptr<Shuffle> &out2
     ) {
         int len = in1->cut - in1->indices.begin();
-        int cutRange = std::floor(len * this->config->mixing.cutRange);
+        int cutRange = std::floor(len * this->config.mixing.cutRange);
 
         std::uniform_int_distribution<int> rand((len - cutRange) / 2, (len + cutRange) / 2);
         int cutInd = rand(this->rng);
 
-        std::vector<bool> aux1(this->instance->getNWords());
-        std::vector<bool> aux2(this->instance->getNWords());
+        std::vector<bool> aux1(this->instance.getNWords());
+        std::vector<bool> aux2(this->instance.getNWords());
 
         for (int i = 0; i < cutInd; i++) {
             out1->indices[i] = in1->indices[i];
@@ -136,15 +136,15 @@ public:
 int main(int argc, char *argv[]) {
     bool parallel = false;
 
-    std::unique_ptr<std::istream> in_cfg;
-    std::unique_ptr<std::istream> in_inst;
+    std::string in_cfg;
+    std::string in_inst;
 
     int next_option;
     while (optind < argc) {
         if ((next_option = getopt_long(argc, argv, "p:c:", long_opts, NULL)) != -1) {
             switch (next_option) {
             case 'c':
-                in_cfg.reset(new std::ifstream(optarg));
+                in_cfg = optarg;
                 break;
             case 'p': {
                 int threads = std::atoi(optarg);
@@ -159,8 +159,8 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
         } else {
-            if (in_inst == nullptr) {
-                in_inst.reset(new std::ifstream(argv[optind]));
+            if (in_inst == "") {
+                in_inst = argv[optind];
             } else {
                 std::cerr << "Too many instance files specified" << std::endl;
                 return 1;
@@ -168,11 +168,22 @@ int main(int argc, char *argv[]) {
             optind++;
         }
     }
-    Config c(std::move(in_cfg));
 
-    Instance i(std::move(in_inst), 160, 209);
+    Config c;
+    if (in_cfg != "") {
+        std::ifstream __conf = std::ifstream(in_cfg);
+        c = Config(__conf);
+    }
 
-    Genetic g(c, i);
+    Instance i;
+    if (in_inst != "") {
+        std::ifstream __inst = std::ifstream(in_inst);
+        i = Instance(__inst, 160, 209);
+    } else {
+        i = Instance(std::cin, 160, 209);
+    }
+
+    Genetic g(std::move(c), std::move(i));
     g.run(parallel);
 
     return 0;
