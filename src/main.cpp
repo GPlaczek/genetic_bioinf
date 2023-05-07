@@ -13,24 +13,28 @@
 const static struct option long_opts[] = {
     {"config", required_argument, NULL, 'c'},
     {"parallel", optional_argument, NULL, 'p'},
+    {"n-words", required_argument, NULL, 'n'},
+    {"target-length", required_argument, NULL, 'l'},
     {0, 0, 0, 0},
 };
 
-
 int main(int argc, char *argv[]) {
     bool parallel = false;
+    int nWords = -1;
+    int targetLength = -1;
 
     std::string in_cfg;
     std::string in_inst;
 
-    int next_option;
+    int next_option = 0;
     while (optind < argc) {
-        if ((next_option = getopt_long(argc, argv, "p::c:", long_opts, NULL)) != -1) {
+        int index = -1;
+        if ((next_option = getopt_long(argc, argv, ":p::c:n:l:", long_opts, &index)) != -1) {
             switch (next_option) {
             case 'c':
                 in_cfg = optarg;
                 break;
-            case 'p': {
+            case 'p':
                 if (optarg != nullptr) {
                     int threads = std::atoi(optarg);
                     if (threads < 1) {
@@ -40,7 +44,21 @@ int main(int argc, char *argv[]) {
                     omp_set_num_threads(threads);
                 }
                 parallel = true;
-                break; }
+                break;
+            case 'n':
+                nWords = std::atoi(optarg);
+                break;
+            case 'l':
+                targetLength = std::atoi(optarg); break;
+            case ':':
+                if (index != -1) {
+                    std::cerr << "Option '" << long_opts[index].name << "' requires a parameter" << std::endl;
+                } else {
+                    std::cerr << "Option '" << (char)optopt << "' requires a parameter" << std::endl;
+                }
+                return 1;
+            case '?':
+                std::cerr << "Unrecognized option: '" << (char)optopt << "'" << std::endl;
             default:
                 return 1;
             }
@@ -55,6 +73,16 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (targetLength == -1) {
+        std::cerr << "Target length not specified" << std::endl;
+        return 1;
+    }
+
+    if (nWords == -1) {
+        std::cerr << "Number of words not specified" << std::endl;
+        return 1;
+    }
+
     Config c;
     if (in_cfg != "") {
         std::ifstream __conf = std::ifstream(in_cfg);
@@ -64,9 +92,9 @@ int main(int argc, char *argv[]) {
     Instance i;
     if (in_inst != "") {
         std::ifstream __inst = std::ifstream(in_inst);
-        i = Instance(__inst, 160, 209);
+        i = Instance(__inst, nWords, targetLength);
     } else {
-        i = Instance(std::cin, 160, 209);
+        i = Instance(std::cin, nWords, targetLength);
     }
 
     Genetic g(std::move(c), std::move(i));
