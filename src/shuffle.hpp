@@ -9,7 +9,7 @@ public:
     std::vector<int>::iterator cut;
 
     Shuffle(int nWords);
-    Shuffle(const Shuffle &s);
+    // Shuffle(const Shuffle &s);
 
     bool operator< (Shuffle const& other) const;
     bool operator<= (Shuffle const& other) const;

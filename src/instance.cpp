@@ -56,7 +56,7 @@ void Instance::evaluate(Shuffle &s) {
         seqLen += distance;
     }
 
-    s.value = (seqLen - targetLen) * (seqLen - targetLen) + nPositive;
+    s.value = nPositive;
     s.cut = s.indices.begin() + i;
 }
 
