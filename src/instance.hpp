@@ -12,9 +12,9 @@ class Instance {
     std::vector<std::vector<int>> matrix;
     std::vector<std::string> words;
 public:
-    int getNWords();
-    int getTargetLen();
-    void evaluate(Shuffle &s);
+    int getNWords() const;
+    int getTargetLen() const;
+    void evaluate(Shuffle &s) const;
 
     Instance();
     Instance(std::istream &stream, int nWords, int targetLen);

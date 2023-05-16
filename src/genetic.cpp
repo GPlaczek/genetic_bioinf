@@ -63,8 +63,8 @@ std::vector<Shuffle> Genetic::run(bool parallel) {
 }
 
 void Genetic::combine(
-    Shuffle &in1,
-    Shuffle &in2,
+    const Shuffle &in1,
+    const Shuffle &in2,
     Shuffle &out1,
     Shuffle &out2
 ) {

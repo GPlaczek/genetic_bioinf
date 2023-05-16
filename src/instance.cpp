@@ -41,7 +41,7 @@ Instance::Instance(
     }
 }
 
-void Instance::evaluate(Shuffle &s) {
+void Instance::evaluate(Shuffle &s) const {
     int nPositive = s.indices.size();
     int nNegative = 0;
     int seqLen = this->words[0].length();
@@ -60,5 +60,5 @@ void Instance::evaluate(Shuffle &s) {
     s.cut = s.indices.begin() + i;
 }
 
-int Instance::getNWords() { return this -> nWords; }
-int Instance::getTargetLen() { return this -> targetLen; }
+int Instance::getNWords() const { return this -> nWords; }
+int Instance::getTargetLen() const { return this -> targetLen; }
