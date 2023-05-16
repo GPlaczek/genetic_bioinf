@@ -97,14 +97,11 @@ int main(int argc, char *argv[]) {
         i = Instance(std::cin, nWords, targetLength);
     }
 
-    Genetic g(std::move(c), std::move(i));
+    Genetic g(std::move(c), i);
     std::vector<Shuffle> result = g.run(parallel);
 
     for (auto &s: result) {
-        for (auto &i: s.indices) {
-            std::cout << i << " ";
-        }
-        std::cout << ": " << s.value << std::endl;
+        i.prettyPrint(std::cout, s);
     }
 
     return 0;

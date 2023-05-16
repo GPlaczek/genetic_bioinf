@@ -3,6 +3,9 @@
 #include <vector>
 
 #include "instance.hpp"
+#include "shuffle.hpp"
+
+#define ANSI_RED(str) "\033[1;31m" + str + "\033[0m"
 
 int compareDist(std::string &first, std::string &second) {
     // this check might not be necessary
@@ -62,3 +65,13 @@ void Instance::evaluate(Shuffle &s) const {
 
 int Instance::getNWords() const { return this -> nWords; }
 int Instance::getTargetLen() const { return this -> targetLen; }
+
+void Instance::prettyPrint(std::ostream &out, const Shuffle &s1) const {
+    out << this->words[s1.indices.front()];
+    for (auto it = s1.indices.begin() + 1; it < s1.cut; it++) {
+        int dist = this->matrix[*(it-1)][*it];
+        out << ANSI_RED(this->words[*it].substr(0, dist-1));
+        out << this->words[*it].back();
+    }
+    out << ": " << s1.value << std::endl;
+}
