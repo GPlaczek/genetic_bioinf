@@ -14,7 +14,7 @@ Genetic::Genetic(Config config, Instance instance) {
     this->rng = std::mt19937(rd());
 }
 
-void Genetic::run(bool parallel) {
+std::vector<Shuffle> Genetic::run(bool parallel) {
     int nWinners = (int)(this->config.tournament.percentWinners * this->config.population.size);
 
     std::vector<Shuffle> population(
@@ -31,7 +31,7 @@ void Genetic::run(bool parallel) {
     }
 
     for (int i = 0; i < this->config.nGenerations; i++) {
-        std::cout << "Generation: " << i << std::endl;
+        std::cerr << "Generation: " << i << std::endl;
         // Evaluate the population
         #pragma omp parallel for if (parallel)
         for (auto &s : population) {
@@ -53,13 +53,13 @@ void Genetic::run(bool parallel) {
         }
         work.swap(population);
     }
-    for (auto &s : work) {
-        // this->instance->evaluate(*s);
-        for (auto it = s.indices.begin(); it < s.indices.end(); it++) {
-            std::cout << *it << " ";
-        }
-        std::cout << ": " << s.value << std::endl << std::endl;
+
+    #pragma omp parallel for if (parallel)
+    for (auto &s : population) {
+        this->instance.evaluate(s);
     }
+
+    return population;
 }
 
 void Genetic::combine(

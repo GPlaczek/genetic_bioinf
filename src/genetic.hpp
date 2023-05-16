@@ -12,5 +12,5 @@ class Genetic {
 public:
     Genetic();
     Genetic(Config config, Instance instance);
-    void run(bool parallel);
+    std::vector<Shuffle> run(bool parallel);
 };

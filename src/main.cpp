@@ -98,7 +98,14 @@ int main(int argc, char *argv[]) {
     }
 
     Genetic g(std::move(c), std::move(i));
-    g.run(parallel);
+    std::vector<Shuffle> result = g.run(parallel);
+
+    for (auto &s: result) {
+        for (auto &i: s.indices) {
+            std::cout << i << " ";
+        }
+        std::cout << ": " << s.value << std::endl;
+    }
 
     return 0;
 }
