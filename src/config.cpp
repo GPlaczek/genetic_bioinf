@@ -1,6 +1,6 @@
 #include <string>
+
 #include <inipp.h>
-#include <memory>
 
 #include "config.hpp"
 

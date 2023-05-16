@@ -1,10 +1,8 @@
 #include <iostream>
-#include <getopt.h>
-#include <memory>
 #include <fstream>
-#include <numeric>
 
 #include <omp.h>
+#include <getopt.h>
 
 #include "config.hpp"
 #include "instance.hpp"

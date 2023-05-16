@@ -1,5 +1,5 @@
 #include <memory>
-#include <iostream>
+#include <ostream>
 #include <vector>
 
 #include "instance.hpp"
