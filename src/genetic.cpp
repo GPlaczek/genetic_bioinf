@@ -45,8 +45,12 @@ std::vector<Shuffle> Genetic::run(bool parallel) {
         std::uniform_int_distribution<int> rand(0, nWinners-1);
         #pragma omp parallel for if (parallel)
         for (auto it = work.begin(); it < work.end(); it+=2) {
-            int y, x = rand(this->rng);
-            while ((y = rand(this->rng) == x));
+            int x, y;
+            #pragma omp critical
+            {
+                x = rand(this->rng);
+                y = rand(this->rng);
+            }
             Shuffle &s1 = *(population.begin() + x);
             Shuffle &s2 = *(population.begin() + y);
             combine(s1, s2, *it, *(it+1));
@@ -73,8 +77,12 @@ void Genetic::combine(
 
     std::uniform_int_distribution<int> rand((len - cutRange) / 2, (len + cutRange) / 2);
 
-    int cutInd1 = rand(this->rng);
-    int cutInd2 = rand(this->rng);
+    int cutInd1, cutInd2;
+    #pragma omp critical
+    {
+        cutInd1 = rand(this->rng);
+        cutInd2 = rand(this->rng);
+    }
 
     std::vector<bool> aux1(this->instance.getNWords(), false);
     std::vector<bool> aux2(this->instance.getNWords(), false);
