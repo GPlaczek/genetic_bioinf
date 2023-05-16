@@ -12,6 +12,7 @@ Genetic::Genetic(Config config, Instance instance) {
     this->instance = instance;
     std::random_device rd;
     this->rng = std::mt19937(rd());
+    this->stop = false;
 }
 
 std::vector<Shuffle> Genetic::run(bool parallel) {
@@ -30,7 +31,7 @@ std::vector<Shuffle> Genetic::run(bool parallel) {
         std::shuffle(it.indices.begin(), it.indices.end(), rng);
     }
 
-    for (int i = 0; i < this->config.nGenerations; i++) {
+    for (int i = 0; !this->stop && i < this->config.nGenerations; i++) {
         std::cerr << "Generation: " << i << std::endl;
         // Evaluate the population
         #pragma omp parallel for if (parallel)
@@ -123,3 +124,5 @@ void Genetic::combine(
         }
     }
 }
+
+void Genetic::setStop() { this->stop = true; }

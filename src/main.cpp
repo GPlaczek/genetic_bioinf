@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <functional>
+#include <csignal>
 
 #include <omp.h>
 #include <getopt.h>
@@ -15,6 +17,12 @@ const static struct option long_opts[] = {
     {"target-length", required_argument, NULL, 'l'},
     {0, 0, 0, 0},
 };
+
+std::function<void(int)> handler;
+void sigint_handler(int signum) {
+    handler(signum);
+    std::signal(SIGINT, SIG_DFL);
+}
 
 int main(int argc, char *argv[]) {
     bool parallel = false;
@@ -96,8 +104,13 @@ int main(int argc, char *argv[]) {
     }
 
     Genetic g(std::move(c), i);
-    std::vector<Shuffle> result = g.run(parallel);
+    handler = [&g](int _signum) {
+        std::cerr << "Stopping early" << std::endl;
+        g.setStop();
+    };
+    std::signal(SIGINT, sigint_handler);
 
+    std::vector<Shuffle> result = g.run(parallel);
     for (auto &s: result) {
         i.prettyPrint(std::cout, s);
     }
