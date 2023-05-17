@@ -42,6 +42,19 @@ std::vector<Shuffle> Genetic::run(bool parallel) {
         // Pick strongest elements
         std::partial_sort(population.begin(), population.begin() + nWinners, population.end());
 
+        // Mutate the population
+        std::uniform_real_distribution<float> mut(0, 1);
+        #pragma omp parallel for if (parallel)
+        for (auto &s : population) {
+            float chance;
+            #pragma omp critical
+            chance = mut(this->rng);
+
+            if (chance < this->config.mutation.chance) {
+                this->mutate(s);
+            }
+        }
+
         // Rebuild the population
         std::uniform_int_distribution<int> rand(0, nWinners-1);
         #pragma omp parallel for if (parallel)
@@ -122,6 +135,19 @@ void Genetic::combine(
             out2.indices[ind2++] = in2.indices[i];
             aux2[in2.indices[i]] = true;
         }
+    }
+}
+
+void Genetic::mutate(Shuffle &in) {
+    std::uniform_int_distribution<int> rand(0, this->instance.getNWords() - 1);
+    for (int i = 0; i < this->config.mutation.nShuffles; i++) {
+        int x, y;
+        #pragma omp critical
+        { 
+            x = rand(this->rng);
+            y = rand(this->rng);
+        }
+        std::swap(in.indices[x], in.indices[y]);
     }
 }
 
