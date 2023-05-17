@@ -2,6 +2,7 @@
 #include <fstream>
 #include <functional>
 #include <csignal>
+#include <exception>
 
 #include <omp.h>
 #include <getopt.h>
@@ -92,7 +93,14 @@ int main(int argc, char *argv[]) {
     Config c;
     if (in_cfg != "") {
         std::ifstream __conf = std::ifstream(in_cfg);
-        c = Config(__conf);
+        c = Config();
+        try {
+            c.load(__conf);
+        } catch(const std::exception &e) {
+            std::cerr << "Could not load config: ";
+            std::cerr << e.what() << std::endl;
+            return 1;
+        }
     }
 
     Instance i;

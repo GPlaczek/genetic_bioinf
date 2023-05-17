@@ -37,5 +37,5 @@ public:
     Mutation mutation;
 
     Config();
-    Config(std::istream &source);
+    void load(std::istream &source);
 };
