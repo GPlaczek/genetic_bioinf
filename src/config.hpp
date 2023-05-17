@@ -4,13 +4,13 @@
 #include <string>
 #include <memory>
 
-const int DEFAULT_N_GENERATIONS = 2000;
-const int DEFAULT_POP_SIZE = 200;
-const int DEFAULT_N_SHUFFLES = 8;
+const int DEFAULT_N_GENERATIONS = 1500;
+const int DEFAULT_POP_SIZE = 1000;
+const int DEFAULT_N_SHUFFLES = 10;
 
-const float DEFAULT_PERCENT_WINNERS = 0.15f;
-const float DEFAULT_CUT_RANGE = 0.20f;
-const float DEFAULT_MUTATION_CHANCE = 0.05f;
+const float DEFAULT_PERCENT_WINNERS = 0.10f;
+const float DEFAULT_CUT_RANGE = 1.0f;
+const float DEFAULT_MUTATION_CHANCE = 0.1f;
 
 const bool DEFAULT_PRECISE = false;
 const bool DEFAULT_DIRTY = true;
