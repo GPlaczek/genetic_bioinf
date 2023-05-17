@@ -33,6 +33,11 @@ std::vector<Shuffle> Genetic::run(bool parallel) {
 
     for (int i = 0; !this->stop && i < this->config.nGenerations; i++) {
         std::cerr << "Generation: " << i << std::endl;
+
+        // Mutate the population
+        if (!this->config.mutation.dirty)
+            this->__mutatePop(population, parallel);
+
         // Evaluate the population
         #pragma omp parallel for if (parallel)
         for (auto &s : population) {
@@ -42,19 +47,8 @@ std::vector<Shuffle> Genetic::run(bool parallel) {
         // Pick strongest elements
         std::partial_sort(population.begin(), population.begin() + nWinners, population.end());
 
-        // Mutate the population
-        std::uniform_real_distribution<float> mut(0, 1);
-        #pragma omp parallel for if (parallel)
-        for (auto &s : population) {
-            float chance;
-            #pragma omp critical
-            chance = mut(this->rng);
-
-            if (chance < this->config.mutation.chance) {
-                this->mutate(s);
-            }
-        }
-
+        if (this->config.mutation.dirty)
+            this->__mutatePop(population, parallel);
         // Rebuild the population
         std::uniform_int_distribution<int> rand(0, nWinners-1);
         #pragma omp parallel for if (parallel)
@@ -136,6 +130,21 @@ void Genetic::combine(
             aux2[in2.indices[i]] = true;
         }
     }
+}
+
+void Genetic::__mutatePop(std::vector<Shuffle> &pop, bool parallel) {
+    static std::uniform_real_distribution<float> mut(0, 1);
+    #pragma omp parallel for if (parallel)
+    for (auto &s : pop) {
+        float chance;
+        #pragma omp critical
+        chance = mut(this->rng);
+
+        if (chance < this->config.mutation.chance) {
+            this->mutate(s);
+        }
+    }
+
 }
 
 void Genetic::mutate(Shuffle &in) {

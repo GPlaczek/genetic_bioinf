@@ -9,7 +9,8 @@ Config::Config() {
     this->population = { DEFAULT_POP_SIZE };
     this->mutation = {
         DEFAULT_MUTATION_CHANCE,
-        DEFAULT_N_SHUFFLES
+        DEFAULT_N_SHUFFLES,
+        DEFAULT_DIRTY
     };
     this->tournament = { DEFAULT_PERCENT_WINNERS };
     this->mixing = {
@@ -28,4 +29,5 @@ Config::Config(std::istream &source) : Config::Config() {
     inipp::get_value(ini.sections["mixing"], "cutRange", this->mixing.cutRange);
     inipp::get_value(ini.sections["mutation"], "chance", this->mutation.chance);
     inipp::get_value(ini.sections["mutation"], "nShuffles", this->mutation.nShuffles);
+    inipp::get_value(ini.sections["mutation"], "dirty", this->mutation.dirty);
 }

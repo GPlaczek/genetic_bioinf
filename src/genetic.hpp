@@ -10,6 +10,7 @@ class Genetic {
     std::mt19937 rng;
     bool stop;
     void combine(const Shuffle &in1, const Shuffle &in2, Shuffle &out1, Shuffle &out2);
+    void __mutatePop(std::vector<Shuffle> &pop, bool parallel);
     void mutate(Shuffle &in);
 public:
     Genetic();

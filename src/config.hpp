@@ -13,6 +13,7 @@ const float DEFAULT_CUT_RANGE = 0.20f;
 const float DEFAULT_MUTATION_CHANCE = 0.05f;
 
 const bool DEFAULT_PRECISE = false;
+const bool DEFAULT_DIRTY = true;
 
 class Config {
     struct Population { int size; };
@@ -24,6 +25,7 @@ class Config {
     struct Mutation {
         float chance;
         int nShuffles;
+        bool dirty;
     };
 
 public:
