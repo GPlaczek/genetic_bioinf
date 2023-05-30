@@ -1,5 +1,5 @@
 #include <memory>
-#include <ostream>
+#include <iostream>
 #include <vector>
 
 #include "instance.hpp"
@@ -34,8 +34,17 @@ Instance::Instance(
         std::vector<int>(nWords));
     this -> words = std::vector<std::string>(nWords);
 
-    for (int i = 0; i < nWords; i++) {
+    stream >> this->words[0];
+    if (this->words[0].length() == 0) {
+            std::cerr << "Invalid instance file" << std::endl;
+            std::exit(1);
+    }
+    for (int i = 1; i < nWords; i++) {
         stream >> this->words[i];
+        if (this->words[i].length() != this->words[0].length()) {
+            std::cerr << "Invalid instance file" << std::endl;
+            std::exit(1);
+        }
     }
 
     for (size_t i = 0; i < nWords; i++) {
