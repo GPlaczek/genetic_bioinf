@@ -30,10 +30,14 @@ void Config::load(std::istream &source) {
     inipp::get_value(ini.sections["population"], "size", this->population.size);
     if (this->population.size < 1)
         throw std::out_of_range("Invalid population size: " + std::to_string(this->population.size));
+    if (this->population.size & 1)
+        throw std::out_of_range("Invalid population size (should be even): " + std::to_string(this->population.size));
 
     inipp::get_value(ini.sections["tournament"], "percentWinners", this->tournament.percentWinners);
     if (this->tournament.percentWinners < 0 || this->tournament.percentWinners > 1)
         throw std::out_of_range("Invalid percent winners: " + std::to_string(this->tournament.percentWinners));
+    if (this->tournament.percentWinners * static_cast<float>(this->population.size) < 1)
+        throw std::out_of_range("Invalid percent winners : " + std::to_string(this->tournament.percentWinners) + " (no winners with given population size)");
 
     inipp::get_value(ini.sections["mixing"], "precise", this->mixing.precise);
     inipp::get_value(ini.sections["mixing"], "cutRange", this->mixing.cutRange);
