@@ -59,7 +59,8 @@ void Instance::evaluate(Shuffle &s) const {
         seqLen += distance;
     }
 
-    s.value = nPositive;
+    int diff = seqLen < this->targetLen ? this->targetLen - seqLen : seqLen - this->targetLen;
+    s.value = nPositive + (seqLen - this->targetLen) * (seqLen - this->targetLen);
     s.cut = s.indices.begin() + i;
 }
 
