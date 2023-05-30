@@ -2,7 +2,7 @@
 #include <fstream>
 #include <functional>
 #include <csignal>
-#include <exception>
+#include <algorithm>
 
 #include <omp.h>
 #include <getopt.h>
@@ -119,9 +119,8 @@ int main(int argc, char *argv[]) {
     std::signal(SIGINT, sigint_handler);
 
     std::vector<Shuffle> result = g.run(parallel);
-    for (auto &s: result) {
-        i.prettyPrint(std::cout, s);
-    }
+    auto max = std::min_element(result.begin(), result.end());
+    i.prettyPrint(std::cout, *max);
 
     return 0;
 }
